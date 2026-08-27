@@ -1,0 +1,21 @@
+{
+  "name": "pi-emoji",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "pnpm format:check && pnpm lint && pnpm test",
+    "format": "oxfmt --write index.ts src/*.ts test/*.ts package.json .oxfmtrc.json",
+    "format:check": "oxfmt --check index.ts src/*.ts test/*.ts package.json .oxfmtrc.json",
+    "lint": "oxlint index.ts src/*.ts test/*.ts",
+    "test": "bun run test/index.test.ts"
+  },
+  "dependencies": {
+    "node-emoji": "^2.2.0"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-tui": "0.84.3",
+    "oxfmt": "0.65.0",
+    "oxlint": "1.80.0"
+  },
+  "packageManager": "pnpm@10.29.3"
+}
