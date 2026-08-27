@@ -3,19 +3,22 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "pnpm format:check && pnpm lint && pnpm test",
-    "format": "oxfmt --write index.ts src/*.ts test/*.ts package.json .oxfmtrc.json",
-    "format:check": "oxfmt --check index.ts src/*.ts test/*.ts package.json .oxfmtrc.json",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test",
+    "format": "oxfmt --write index.ts src/*.ts test/*.ts package.json tsconfig.json .oxfmtrc.json",
+    "format:check": "oxfmt --check index.ts src/*.ts test/*.ts package.json tsconfig.json .oxfmtrc.json",
     "lint": "oxlint index.ts src/*.ts test/*.ts",
-    "test": "bun run test/index.test.ts"
+    "test": "bun run test/index.test.ts",
+    "typecheck": "tsc"
   },
   "dependencies": {
     "node-emoji": "^2.2.0"
   },
   "devDependencies": {
+    "@earendil-works/pi-coding-agent": "0.84.3",
     "@earendil-works/pi-tui": "0.84.3",
     "oxfmt": "0.65.0",
-    "oxlint": "1.80.0"
+    "oxlint": "1.80.0",
+    "typescript": "^7.0.2"
   },
   "packageManager": "pnpm@10.29.3"
 }
