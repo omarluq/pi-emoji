@@ -1,11 +1,10 @@
-import { registerEmojiCommand, type EmojiCommandRegistrar } from "./picker.ts";
+import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import { registerEmojiEditor } from "./editor.ts";
+import { registerEmojiCommand } from "./picker.ts";
 import { transformEmojiShortcodes } from "./shortcodes.ts";
 
-type PiExtension = EmojiCommandRegistrar & {
-  registerMarkdownTransformer(transformer: (markdown: string) => string): void;
-};
-
-export default function emojiShortcodes(pi: PiExtension): void {
+export default function emojiShortcodes(pi: ExtensionAPI): void {
   pi.registerMarkdownTransformer(transformEmojiShortcodes);
   registerEmojiCommand(pi);
+  registerEmojiEditor(pi);
 }

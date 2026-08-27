@@ -1,6 +1,8 @@
+import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { visibleWidth } from "@earendil-works/pi-tui";
 import emojiShortcodes from "../index.ts";
 import { frameEmojiModal } from "../src/frame.ts";
+import { renderPromptEmojiShortcodes } from "../src/editor.ts";
 import { emojiItems, transformEmojiShortcodes } from "../src/shortcodes.ts";
 
 const markdown = [
@@ -21,6 +23,10 @@ const expected = [
   "Done 👍",
 ].join("\n");
 const actual = transformEmojiShortcodes(markdown);
+const prompt = renderPromptEmojiShortcodes("Hello :wave: :unknown_shortcode:");
+if (prompt !== "Hello 👋 :unknown_shortcode:") {
+  throw new Error(`Prompt emoji rendering failed: ${JSON.stringify(prompt)}`);
+}
 
 if (actual !== expected)
   throw new Error(`Expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`);
@@ -78,12 +84,40 @@ if (
 }
 
 let registeredCommand = "";
+let sessionStartHandler: ((event: { reason: "startup" | "reload" }, ctx: any) => void) | undefined;
 emojiShortcodes({
+  on(event: string, handler: unknown) {
+    if (event === "session_start") {
+      sessionStartHandler = handler as typeof sessionStartHandler;
+    }
+  },
   registerMarkdownTransformer() {},
-  registerCommand(name) {
+  registerCommand(name: string) {
     registeredCommand = name;
   },
-});
+} as unknown as ExtensionAPI);
 if (registeredCommand !== "emoji") throw new Error("/emoji command was not registered");
+if (!sessionStartHandler) throw new Error("Prompt emoji renderer was not registered");
+
+let editorInstallations = 0;
+let installedEditorFactory: unknown;
+const editorContext = {
+  mode: "tui",
+  ui: {
+    getEditorComponent: () => installedEditorFactory,
+    setEditorComponent: (factory: unknown) => {
+      editorInstallations += 1;
+      installedEditorFactory = factory;
+    },
+  },
+};
+sessionStartHandler({ reason: "startup" }, editorContext);
+if (editorInstallations !== 1) throw new Error("Prompt emoji renderer missed session startup");
+
+const competingEditorFactory = () => ({});
+editorContext.ui.setEditorComponent(competingEditorFactory);
+if (Number(editorInstallations) !== 2 || installedEditorFactory === competingEditorFactory) {
+  throw new Error("Prompt emoji renderer did not wrap a competing editor");
+}
 
 console.log("emoji shortcode rendering ok");
