@@ -1,58 +1,17 @@
-import { Input, SelectList } from "@earendil-works/pi-tui";
+import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import { Input, SelectList, type Keybinding } from "@earendil-works/pi-tui";
 import { frameEmojiModal } from "./frame.ts";
 import { emojiItems } from "./shortcodes.ts";
 
-type EmojiPopup = {
-  focused: boolean;
-  render(width: number): string[];
-  handleInput(data: string): void;
-  invalidate(): void;
-  dispose(): void;
-};
-
-type EmojiOverlayOptions = {
-  overlay: true;
-  overlayOptions: {
-    anchor: "center";
-    width: number;
-    maxHeight: number;
-    margin: number;
-  };
-};
-
-type EmojiCommandContext = {
-  ui: {
-    custom<T>(
-      factory: (
-        tui: { requestRender(): void },
-        theme: {
-          fg(color: string, text: string): string;
-          bg(color: string, text: string): string;
-        },
-        keybindings: { matches(data: string, id: string): boolean },
-        done: (value: T) => void,
-      ) => EmojiPopup,
-      options?: EmojiOverlayOptions,
-    ): Promise<T | undefined>;
-    getEditorText(): string;
-    setEditorText(text: string): void;
-  };
-};
-
-export type EmojiCommandRegistrar = {
-  registerCommand(
-    name: string,
-    options: {
-      description: string;
-      handler(args: string, ctx: EmojiCommandContext): Promise<void>;
-    },
-  ): void;
-};
-
 const SHIMMER_INTERVAL_MS = 80;
-const PICKER_KEYS = ["tui.select.up", "tui.select.down", "tui.select.confirm", "tui.select.cancel"];
+const PICKER_KEYS: Keybinding[] = [
+  "tui.select.up",
+  "tui.select.down",
+  "tui.select.confirm",
+  "tui.select.cancel",
+];
 
-export function registerEmojiCommand(pi: EmojiCommandRegistrar): void {
+export function registerEmojiCommand(pi: ExtensionAPI): void {
   pi.registerCommand("emoji", {
     description: "Browse emoji shortcodes",
     async handler(_args, ctx) {
